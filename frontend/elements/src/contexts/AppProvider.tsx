@@ -31,18 +31,23 @@ import SignalLike = JSXInternal.SignalLike;
 
 type ExperimentalFeature = "conditionalMediation";
 type ExperimentalFeatures = ExperimentalFeature[];
-type ComponentName = "auth" | "profile" | "events";
+export type ComponentName = "auth" | "profile" | "events";
 
-interface Props {
+export interface GlobalOptions {
   hanko?: Hanko;
-  lang?: string | SignalLike<string>;
+  injectStyles?: boolean;
+  enablePasskeys?: boolean;
+  hidePasskeyButtonOnLogin?: boolean;
   translations?: Translations;
   translationsLocation?: string;
   fallbackLanguage?: string;
-  injectStyles?: boolean;
+}
+
+interface Props {
+  lang?: string | SignalLike<string>;
   experimental?: string;
-  enablePasskeys?: boolean;
   componentName: ComponentName;
+  globalOptions: GlobalOptions;
   children?: ComponentChildren;
 }
 
@@ -69,23 +74,27 @@ interface Context extends States {
   experimentalFeatures?: ExperimentalFeatures;
   emitSuccessEvent: (userID: string) => void;
   enablePasskeys: boolean;
+  hidePasskeyButtonOnLogin: boolean;
 }
 
 export const AppContext = createContext<Context>(null);
-
 const AppProvider = ({
-  hanko,
   lang,
   componentName,
   experimental = "",
-  injectStyles = false,
-  enablePasskeys = true,
-  translations,
-  translationsLocation = "/i18n",
-  fallbackLanguage = "en",
+  globalOptions,
 }: Props) => {
+  const {
+    hanko,
+    injectStyles,
+    enablePasskeys,
+    hidePasskeyButtonOnLogin,
+    translations,
+    translationsLocation,
+    fallbackLanguage,
+  } = globalOptions;
   const ref = useRef<HTMLElement>(null);
-
+  const {} = globalOptions;
   const experimentalFeatures = useMemo(
     () =>
       experimental
@@ -188,6 +197,7 @@ const AppProvider = ({
         experimentalFeatures,
         emitSuccessEvent,
         enablePasskeys,
+        hidePasskeyButtonOnLogin,
         config,
         setConfig,
         userInfo,
